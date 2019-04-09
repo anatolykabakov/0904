@@ -36,7 +36,7 @@ if __name__ == '__main__':
     current_time = time.time()
     full_time = 0
     cur_time = 0
-    while full_time <= 40:
+    while full_time <= 60:
 
         prev_time = current_time
         current_time = time.time()
@@ -48,10 +48,10 @@ if __name__ == '__main__':
         v, yaw, x, y = arduino.getSerialData()
 
         distVec = scan2distVec(items)
-        log_arduino = str(round(v, 2))+' '+str(round(yaw, 2))+str(round(x, 2))+' '+str(round(y, 2))
+        log_arduino = str(round(v, 2))+' '+str(round(yaw, 2))+' '+str(round(x, 2))+' '+str(round(y, 2))
         lidar_log = ' '.join(str(el) for el in distVec)
-        file.write(current_time+' '+log_arduino+' '+lidar_log+'\n')
-        serial.setSerialData(0.3, 1)
+        file.write(str(current_time)+' '+log_arduino+' '+lidar_log+'\n')
+        arduino.setSerialData(0.3, 1)
         current_time
             
     # Shut down the lidar connection
@@ -59,3 +59,4 @@ if __name__ == '__main__':
     file.close()
     lidar.stop()
     lidar.disconnect()
+    arduino.setSerialData(0,0)
