@@ -20,10 +20,6 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
     Ka = 1.5 # коэффициент притяжения
     Kr = 1.0 # коэффициент отталкивания
     dg = math.sqrt((xg-xr)**2+(yg-yr)**2)#расстояние до цели
-    if dg <= 0.1:
-        stop = True
-    else:
-        stop = False
     Xrf = []
     Yrf = []
 
@@ -64,7 +60,7 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
     LinearVelocity = Vu*math.sqrt(RV_x**2+RV_y**2)
     AngularVelocity = math.atan2(RV_y, RV_x)
     
-    return LinearVelocity, AngularVelocity,stop
+    return LinearVelocity, AngularVelocity
         
         
     
@@ -101,13 +97,24 @@ if __name__ == '__main__':
     current_time = time.time()
     full_time = 0
     cur_time = 0
-    stop = False
-    while !stop:
-        v, yaw, x, y = arduino.getSerialData()
+    while full_time <= 60:
+
+        prev_time = current_time
+        current_time = time.time()
+        delta_time = current_time - prev_time
+        full_time += delta_time
+        
         # Extract (quality, angle, distance) triples from current scan
         items = [[item[1], item[2]] for item in next(iterator)]
-        LinearVelocity, AngularVelocity,stop = potencial_field(x, y, xg, yg, Vu, items)
+        v, yaw, x, y = arduino.getSerialData()
+        LinearVelocity, AngularVelocity = potencial_field(x, y, xg, yg, Vu, items)
+
+        distVec = scan2distVec(items)
+        log_arduino = str(round(v, 2))+' '+str(round(yaw, 2))+' '+str(round(x, 2))+' '+str(round(y, 2))
+        lidar_log = ' '.join(str(el) for el in distVec)
+        file.write(str(current_time)+' '+log_arduino+' '+lidar_log+'\n')
         arduino.setSerialData(LinearVelocity, AngularVelocity)
+        current_time
             
     # Shut down the lidar connection
     print('Stoping.')
