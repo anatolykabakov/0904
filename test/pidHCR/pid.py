@@ -9,6 +9,7 @@ if __name__ == '__main__':
     full_time = 0
     cur_time = 0
     while full_time <= 5:
+        
         v, yaw, x, y = serial.getSerialData()
         prev_time = current_time
         current_time = time.time()

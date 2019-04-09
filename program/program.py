@@ -1,7 +1,20 @@
 from remote_api import Serial
 from rplidar import RPLidar as Lidar
+import time
 LIDAR_DEVICE            = '/dev/ttyUSB0'
 ARDUINO_HCR             = '/dev/ttyACM0'
+file = open("log.txt", "w")
+
+def scan2distVec(scan):
+    scanSize = 360
+    distVec = [0 for i in range(scanSize)]
+
+    for point in scan: # create breezySLAM-compatible data from raw scan data
+      dist = point[1]
+      index = int(point[0])
+      if not 0 <= index < scanSize: continue
+      distVec[index] = int(dist)
+    return distVec
 
 if __name__ == '__main__':
     # Connect to Arduino unit
@@ -18,16 +31,31 @@ if __name__ == '__main__':
 
     # First scan is crap, so ignore it
     next(iterator)
-    for i in range(20):
-        # Extract (quality, angle, distance) triples from current scan
-        items = [item for item in next(iterator)]
-        for item in items:
-            print(item)
+    #timer
+    prev_time = 0
+    current_time = time.time()
+    full_time = 0
+    cur_time = 0
+    while full_time <= 40:
 
-        ## Extract distances and angles from triples
-        #distances = [item[2] for item in items]
-        #angles    = [item[1] for item in items]
-        #print()
+        prev_time = current_time
+        current_time = time.time()
+        delta_time = current_time - prev_time
+        full_time += delta_time
+        
+        # Extract (quality, angle, distance) triples from current scan
+        items = [[item[1], item[2]] for item in next(iterator)]
+        v, yaw, x, y = arduino.getSerialData()
+
+        distVec = scan2distVec(items)
+        log_arduino = str(round(v, 2))+' '+str(round(yaw, 2))+str(round(x, 2))+' '+str(round(y, 2))
+        lidar_log = ' '.join(str(el) for el in distVec)
+        file.write(current_time+' '+log_arduino+' '+lidar_log+'\n')
+        serial.setSerialData(0.3, 1)
+        current_time
+            
     # Shut down the lidar connection
+    print('Stoping.')
+    file.close()
     lidar.stop()
     lidar.disconnect()
