@@ -51,7 +51,7 @@ if __name__ == '__main__':
         log_arduino = str(round(v, 2))+' '+str(round(yaw, 2))+' '+str(round(x, 2))+' '+str(round(y, 2))
         lidar_log = ' '.join(str(el) for el in distVec)
         file.write(str(current_time)+' '+log_arduino+' '+lidar_log+'\n')
-        arduino.setSerialData(0.3, 1)
+        arduino.setSerialData(0.3, 0.5)
         current_time
             
     # Shut down the lidar connection
