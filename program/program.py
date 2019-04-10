@@ -16,8 +16,8 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
     Vu - желаемая скорость движения
     scan - массив точек лидара
     '''
-    rd = 2 # дистанция рекции
-    Ka = 1.5 # коэффициент притяжения
+    rd = 1 # дистанция рекции
+    Ka = 1.0 # коэффициент притяжения
     Kr = 1.0 # коэффициент отталкивания
     dg = math.sqrt((xg-xr)**2+(yg-yr)**2)#расстояние до цели
     if dg <= 0.1:
@@ -32,17 +32,20 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
         alpha = point[0] #угол измерения лидара градусы
         dist  = point[1] #дистанция измерения лидара миллиметры
         alpha = alpha*math.pi/180 #градусы в радианты
+        #alpha = alpha - 2*math.pi
         dist  = dist/1000 # миллиметры в метры
         
-        if 0<alpha<math.pi/2:
-            gamma = alpha
-        if 3*math.pi/4 < alpha < 2*math.pi:
-            gamma = alpha-2*math.pi
+        if 0<=alpha<=math.pi/2:
+            gamma = -alpha
+        if 3*math.pi/2 <= alpha <= 2*math.pi:
+            gamma = 2*math.pi- alpha 
         # Множество отталкивания
         if dist <= rd:
             f = ((rd - dist)/dist)**2
         if dist > rd:
             f = 0
+        if math.pi/2<=alpha <=3*math.pi/2:
+            f=0
         #Вектор отталкивания единичного препятс
         Xrf.append(f*math.cos(gamma))
         Yrf.append(f*math.sin(gamma))
@@ -58,13 +61,16 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
     Yrf = RF[1]
     RV_x = Xra*Ka-Xrf*Kr
     RV_y = Yra*Ka-Yrf*Kr
-
-    Vu = 0.3#Желаемая скорость движения
-
-    LinearVelocity = Vu*math.sqrt(RV_x**2+RV_y**2)
-    AngularVelocity = math.atan2(RV_y, RV_x)
+    #print(RV_x, RV_y)
+   
+    if Xrf >0 : 
+        LinearVelocity = Vu*math.sqrt(RV_x**2+RV_y**2)
+    else:
+        LinearVelocuty =0
+    AngularVelocity = Vu*2*math.atan2(RV_y, RV_x)/0.1875/math.pi
     
-    return LinearVelocity, AngularVelocity,stop
+    
+    return LinearVelocity/1, AngularVelocity,stop
         
         
     
@@ -90,8 +96,8 @@ if __name__ == '__main__':
     # Create an iterator to collect scan data from the RPLidar
     iterator = lidar.iter_scans()
 
-    Vu = 0.3
-    xg, yg = 1, 2
+    Vu = 0.1
+    xg, yg = 3, 0
 
 
     # First scan is crap, so ignore it
@@ -102,12 +108,17 @@ if __name__ == '__main__':
     full_time = 0
     cur_time = 0
     stop = False
-    while !stop:
+    while stop!=True:
         v, yaw, x, y = arduino.getSerialData()
         # Extract (quality, angle, distance) triples from current scan
         items = [[item[1], item[2]] for item in next(iterator)]
+        #distances = [item[1] for item in items]
+        #angles    = [item[0] for item in items]
+        #min_dist = min(distances)
+        #print(angles[distances.index(min_dist)])
         LinearVelocity, AngularVelocity,stop = potencial_field(x, y, xg, yg, Vu, items)
         arduino.setSerialData(LinearVelocity, AngularVelocity)
+        print(LinearVelocity, AngularVelocity)
             
     # Shut down the lidar connection
     print('Stoping.')
