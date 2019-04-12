@@ -2,6 +2,7 @@ from remote_api import Serial
 from rplidar import RPLidar as Lidar
 import time
 import math
+from robot import Robot
 LIDAR_DEVICE            = '/dev/ttyUSB2'
 ARDUINO_HCR             = '/dev/ttyACM4'
 file = open("log.txt", "w")
@@ -84,6 +85,7 @@ def scan2distVec(scan):
     return distVec
 
 if __name__ == '__main__':
+    robot = Robot(0.0682, 0.275)
     # Connect to Arduino unit
     arduino   = Serial(ARDUINO_HCR, 57600)
     # Connect to Lidar unit
@@ -98,21 +100,20 @@ if __name__ == '__main__':
 
     # First scan is crap, so ignore it
     next(iterator)
-    #timer
-    prev_time = 0
-    current_time = time.time()
-    full_time = 0
-    cur_time = 0
+
     stop = False
     while stop!=True:
         try: 
-            v, vr, vl, yaw, x, y = arduino.getSerialData()
+            vr, vl = arduino.getSerialData()
+            robot.update_state(vr, vl)
             # Extract (quality, angle, distance) triples from current scan
             items = [[item[1], item[2]] for item in next(iterator)]
 
-            LinearVelocity, AngularVelocity,stop = potencial_field(x, y, xg, yg, Vu, items)
-            arduino.setSerialData(LinearVelocity, AngularVelocity)
-            print('linear: {0}, angular {1}, vr: {2}, vl: {3}'.format(round(LinearVelocity,2), round(AngularVelocity,2), vr, vl))
+            LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, items)
+            vr = robot.__vRToDrive(LinearVelocity, AngularVelocity)
+            vl = robot.__vLToDrive(LinearVelocity, AngularVelocity)
+            arduino.setSerialData(vr, vl)
+            print('vr: {2}, vl: {3}'.format(vr, vl))
             #print(vr, vl)
         except KeyboardInterrupt:
             arduino.close_connect()

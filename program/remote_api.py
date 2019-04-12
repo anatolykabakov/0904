@@ -19,5 +19,5 @@ class Serial(object):
         data = recieve(self.connect)
         return process_data(data)
  
-    def setSerialData(self, velocity, omega):
-        send_msg(self.connect, velocity, omega)
+    def setSerialData(self, rightVelocity, leftVelocity):
+        send_msg(self.connect, rightVelocity, leftVelocity)

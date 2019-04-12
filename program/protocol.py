@@ -1,28 +1,25 @@
 
 import serial
 import time
-port = 'com5'
-speed = 115200
+
 set_command = 'v'
 print_command = 'd'
 start_connect = 's'
-linearVelocity = 1
-angularVelcity = 0.1
+
 def check_connect(connect):
     c = connect.read(1).decode()
-##    if c == 'c':
-##        print("true")
-##    else:
-##        print("false read")
+    if c != 'c':
+        print("false read")
         
 def send_msg(connect, a, b):
     send_data = set_command + str(a) + ' ' + str(b) + "\n"
+##    print(send_data)
     connect.write(send_data.encode())
     check_connect(connect)
 
 def recieve(connect):
     connect.write(print_command.encode())
-    recieve_data = connect.read(36).decode() # чтение строки из 24 символов в строку
+    recieve_data = connect.read(12).decode() # чтение строки из 24 символов в строку
     check_connect(connect)
     return recieve_data
 
@@ -50,29 +47,12 @@ def closeconnect(connect):
     
 def process_data(data): # разбиваем строку на отдельные значения 
     data = data.split(';')
-    velocity = float(data[0])
-    Vr = float(data[1])
-    Vl = float(data[2])
-    yaw    = float(data[3])
-    x = float(data[4])
-    y = float(data[5])
-    return velocity, Vr, Vl, yaw, x, y
-if __name__ == '__main__':
+    linearVelocityRight = float(data[0])
+    linearVelocityLeft = float(data[1])
+    return linearVelocityRight, linearVelocityLeft
+    
 
-    connect = openconnect(port, speed)
-##    print('Connected!')
 
-    send_msg(connect, linearVelocity, angularVelcity)
-    data = recieve(connect)
-    print(data)
-    velocity, yaw, x, y = process_data(data)
-    print('receive: '+ str(velocity) +' '+str(yaw)+ ' ' +str(x) +' '+str(y))
-##    send_msg(connect, 2, 2)
-##    data = recieve(connect)
-##    print(data)
-##    send_msg(connect, 3, 3)
-##    data = recieve(connect)
-##    print(data)
     
 
 
