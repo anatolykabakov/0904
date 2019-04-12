@@ -16,7 +16,7 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
     Vu - желаемая скорость движения
     scan - массив точек лидара
     '''
-    rd = 1 # дистанция рекции
+    rd = 1 # дистанция реакции
     Ka = 1.0 # коэффициент притяжения
     Kr = 1.0 # коэффициент отталкивания
     dg = math.sqrt((xg-xr)**2+(yg-yr)**2)#расстояние до цели
@@ -32,7 +32,6 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
         alpha = point[0] #угол измерения лидара градусы
         dist  = point[1] #дистанция измерения лидара миллиметры
         alpha = alpha*math.pi/180 #градусы в радианты
-        #alpha = alpha - 2*math.pi
         dist  = dist/1000 # миллиметры в метры
         
         if 0<=alpha<=math.pi/2:
@@ -61,16 +60,14 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
     Yrf = RF[1]
     RV_x = Xra*Ka-Xrf*Kr
     RV_y = Yra*Ka-Yrf*Kr
-    #print(RV_x, RV_y)
    
     if Xrf >0 : 
         LinearVelocity = Vu*math.sqrt(RV_x**2+RV_y**2)
     else:
-        LinearVelocuty =0
+        LinearVelocuty = 0
     AngularVelocity = Vu*2*math.atan2(RV_y, RV_x)/0.1875/math.pi
-    
-    
-    return LinearVelocity/1, AngularVelocity,stop
+     
+    return LinearVelocity, AngularVelocity,stop
         
         
     
@@ -112,10 +109,7 @@ if __name__ == '__main__':
         v, yaw, x, y = arduino.getSerialData()
         # Extract (quality, angle, distance) triples from current scan
         items = [[item[1], item[2]] for item in next(iterator)]
-        #distances = [item[1] for item in items]
-        #angles    = [item[0] for item in items]
-        #min_dist = min(distances)
-        #print(angles[distances.index(min_dist)])
+        
         LinearVelocity, AngularVelocity,stop = potencial_field(x, y, xg, yg, Vu, items)
         arduino.setSerialData(LinearVelocity, AngularVelocity)
         print(LinearVelocity, AngularVelocity)
