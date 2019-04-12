@@ -22,7 +22,7 @@ def send_msg(connect, a, b):
 
 def recieve(connect):
     connect.write(print_command.encode())
-    recieve_data = connect.read(24).decode() # чтение строки из 24 символов в строку
+    recieve_data = connect.read(36).decode() # чтение строки из 24 символов в строку
     check_connect(connect)
     return recieve_data
 
@@ -51,10 +51,12 @@ def closeconnect(connect):
 def process_data(data): # разбиваем строку на отдельные значения 
     data = data.split(';')
     velocity = float(data[0])
-    yaw    = float(data[1])
-    x = float(data[2])
-    y = float(data[3])
-    return velocity, yaw, x, y
+    Vr = float(data[1])
+    Vl = float(data[2])
+    yaw    = float(data[3])
+    x = float(data[4])
+    y = float(data[5])
+    return velocity, Vr, Vl, yaw, x, y
 if __name__ == '__main__':
 
     connect = openconnect(port, speed)

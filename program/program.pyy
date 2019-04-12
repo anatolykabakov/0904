@@ -2,7 +2,7 @@ from remote_api import Serial
 from rplidar import RPLidar as Lidar
 import time
 import math
-LIDAR_DEVICE            = '/dev/ttyUSB2'
+LIDAR_DEVICE            = '/dev/ttyUSB1'
 ARDUINO_HCR             = '/dev/ttyACM4'
 file = open("log.txt", "w")
 
@@ -16,7 +16,7 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
     Vu - желаемая скорость движения
     scan - массив точек лидара
     '''
-    rd = 0.8 # дистанция рекции
+    rd = 1 # дистанция рекции
     Ka = 1.0 # коэффициент притяжения
     Kr = 1.0 # коэффициент отталкивания
     dg = math.sqrt((xg-xr)**2+(yg-yr)**2)#расстояние до цели
@@ -50,7 +50,7 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
         
     #Общий вектор отталкивания
     #for dist in test_dist:
-    print(test_dist)
+   # print(test_dist)
     if len(Xrf)>0:
         RF = [sum(Xrf)/len(Xrf), sum(Yrf)/len(Yrf)]
     else:
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     iterator = lidar.iter_scans()
 
     Vu = 0.3
-    xg, yg = 30, 0
+    xg, yg = 55, 0
 
 
     # First scan is crap, so ignore it
@@ -110,14 +110,15 @@ if __name__ == '__main__':
             # Extract (quality, angle, distance) triples from current scan
             items = [[item[1], item[2]] for item in next(iterator)]
 
-            LinearVelocity, AngularVelocity,stop = potencial_field(x, y, xg, yg, Vu, items)
+            LinearVelocity, AngularVelocity,stop = potencial_field(0, 0, xg, yg, Vu, items)
             arduino.setSerialData(LinearVelocity, AngularVelocity)
             print('linear: {0}, angular {1}, vr: {2}, vl: {3}'.format(round(LinearVelocity,2), round(AngularVelocity,2), vr, vl))
             #print(vr, vl)
         except KeyboardInterrupt:
             arduino.close_connect()
-            # Shut down the lidar connection
-            print('Stoping.')
-            lidar.stop()
-            lidar.disconnect()
-            arduino.setSerialData(0,0)
+    # Shut down the lidar connection
+    print('Stoping.')
+    file.close()
+    lidar.stop()
+    lidar.disconnect()
+    arduino.setSerialData(0,0)

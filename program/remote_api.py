@@ -1,4 +1,4 @@
-from protocol import openconnect, send_msg, recieve, process_data
+from protocol import openconnect, closeconnect, send_msg, recieve, process_data
 
 
 
@@ -12,13 +12,12 @@ class Serial(object):
         connect = openconnect(port, speed)
         return connect
 
-    def closeconnect(self):
-        self.connect.close()
+    def close_connect(self):
+        closeconnect(self.connect)
         
     def getSerialData(self):
         data = recieve(self.connect)
-        self.velocity, self.yaw, self.x, self.y = process_data(data)
-        return self.velocity, self.yaw, self.x, self.y
-
+        return process_data(data)
+ 
     def setSerialData(self, velocity, omega):
         send_msg(self.connect, velocity, omega)
