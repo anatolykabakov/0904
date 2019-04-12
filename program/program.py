@@ -3,8 +3,8 @@ from rplidar import RPLidar as Lidar
 import time
 import math
 from robot import Robot
-LIDAR_DEVICE            = '/dev/ttyUSB2'
-ARDUINO_HCR             = '/dev/ttyACM4'
+LIDAR_DEVICE            = '/dev/ttyUSB0'
+ARDUINO_HCR             = '/dev/ttyACM0'
 file = open("log.txt", "w")
 
 
