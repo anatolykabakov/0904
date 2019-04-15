@@ -13,7 +13,7 @@ def check_connect(connect):
         
 def send_msg(connect, a, b):
     send_data = set_command + str(a) + ' ' + str(b) + "\n"
-##    print(send_data)
+    #print(send_data)
     connect.write(send_data.encode())
     check_connect(connect)
 

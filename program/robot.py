@@ -1,4 +1,4 @@
-
+import time
 import math
 from utils import normalize_angle
 class Robot:
@@ -23,9 +23,9 @@ class Robot:
         self.omegaRight = vr/self.WHEELS_RAD
         self.omegaLeft  = vl/self.WHEELS_RAD
         # фактическая линейная скорость центра робота
-        self.linear_velocity = (self.WHEELS_RAD/2)*(omegaRight + omegaLeft);#//m/s
+        self.linear_velocity = (self.WHEELS_RAD/2)*(self.omegaRight + self.omegaLeft);#//m/s
         # фактическая угловая скорость поворота робота
-        self.angular_velocity = (self.WHEELS_RAD/self.WHEELS_DIST)*(omegaRight - omegaLeft);
+        self.angular_velocity = (self.WHEELS_RAD/self.WHEELS_DIST)*(self.omegaRight - self.omegaLeft);
         self.yaw+=(self.angular_velocity * self.dt)#;  #  // направление в рад
         self.yaw = normalize_angle(self.yaw)
         self.x += self.linear_velocity*math.cos(self.yaw) * self.dt# // в метрах
@@ -35,10 +35,10 @@ class Robot:
         self.lWheel.stop()
         self.rWheel.stop()
 
-    def __vRToDrive(self, vLinear, vAngular):
+    def vRToDrive(self, vLinear, vAngular):
         return (((2 * vLinear) + (self.WHEELS_DIST * vAngular)) / (2));
 
-    def __vLToDrive(self, vLinear, vAngular):
+    def vLToDrive(self, vLinear, vAngular):
         return (((2 * vLinear) - (self.WHEELS_DIST * vAngular)) / (2));
 
     def drive(self, vLinear, vAngular):
