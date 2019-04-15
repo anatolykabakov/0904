@@ -8,8 +8,11 @@ class Robot:
         # Connect to Arduino unit
         self.arduino   = Serial(ARDUINO_HCR, 57600)
         # Connect to Lidar unit
-        if LIDAR_DEVICE:
-            self.init_lidar()
+        self.lidar = Lidar(LIDAR_DEVICE)
+        # Create an iterator to collect scan data from the RPLidar
+        self.iterator = lidar.iter_scans()
+        # First scan is crap, so ignore it
+        next(self.iterator)
         self.lidar = None
         self.WHEELS_DIST = wheel_dist
         self.WHEELS_RAD  = wheel_radius
@@ -26,8 +29,6 @@ class Robot:
         self.prev_time = time.time()
         self.current_time = time.time()
         self.dt = 0
-        # Create an iterator to collect scan data from the RPLidar
-        self.iterator = None
         self.log=None
         
 
@@ -56,9 +57,9 @@ class Robot:
     def stop(self):
         # Shut down the lidar connection
         print('Stoping.')
-        if self.lidar:
-            self.lidar.stop()
-            self.lidar.disconnect()
+    
+        self.lidar.stop()
+        self.lidar.disconnect()
         if self.log == True:
             file.close()
         self.arduino.setSerialData(0,0)
@@ -80,10 +81,10 @@ class Robot:
     def sense(self):
         #get odometry data
         self.vr, self.vl = self.arduino.getSerialData()
-        if self.lidar:
-            #get laser dara
-            # Extract (quality, angle, distance) triples from current scan
-            self.scan = [[item[1], item[2]] for item in next(self.iterator)]
+        
+        #get laser dara
+        # Extract (quality, angle, distance) triples from current scan
+        self.scan = [[item[1], item[2]] for item in next(self.iterator)]
 
     def write_log(self):
         
