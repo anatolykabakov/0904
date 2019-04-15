@@ -47,6 +47,7 @@ def closeconnect(connect):
     
 def process_data(data): # разбиваем строку на отдельные значения 
     data = data.split(';')
+##    print(data)
     linearVelocityRight = float(data[0])
     linearVelocityLeft = float(data[1])
     return linearVelocityRight, linearVelocityLeft

@@ -3,7 +3,7 @@ from remote_api import Serial
 file = open('log_vel_nopid.txt', 'w')
 
 if __name__ == '__main__':
-    serial   = Serial('/dev/ttyACM1', 57600)
+    serial   = Serial('com3', 57600)
     prev_time = 0
     current_time = time.time()
     full_time = 0
