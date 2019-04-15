@@ -1,8 +1,0 @@
-Parameter,Value Brush_MaxPWM,65536 Brush_PWM,-858993460 Brush_mVolts,1310 Brush_Encoder,0 Brush_RPM,
--858993460 Vacuum_MaxPWM,65536 Vacuum_PWM,-858993460 Vacuum_CurrentInMA,52428
-Vacuum_Encoder,0 Vacuum_RPM, 52428 LeftWheel_MaxPWM,65536 LeftWheel_PWM,-858993460
-LeftWheel_mVolts,1310 LeftWheel_Encoder,0 LeftWheel_PositionInMM,0 LeftWheel_RPM,-
-13108 RightWheel_MaxPWM,65536 RightWheel_PWM,-858993460 RightWheel_mVolts,1310
-RightWheel_Encoder,0 RightWheel_PositionInMM,0 RightWheel_RPM,-13108
-Laser_MaxPWM,65536 Laser_PWM,-858993460 Laser_mVolts,1310 Laser_Encoder,0 Laser_RPM,
-52428 Charger_MaxPWM,65536 Charger_PWM,-858993460 Charger_mAH, 52428 
