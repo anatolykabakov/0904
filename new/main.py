@@ -1,9 +1,9 @@
 import time
 import math
 from robot import Robot
-LIDAR_DEVICE            = None#'/dev/ttyUSB0'
-ARDUINO_HCR             = 'com3'
-file = open("log.txt", "w")
+LIDAR_DEVICE            = '/dev/ttyUSB0'
+ARDUINO_HCR             = '/dev/ttyACM0'
+
 
 
 def potencial_field(xr, yr, xg, yg, Vu, scan):
@@ -85,8 +85,8 @@ def scan2distVec(scan):
     return distVec
 
 if __name__ == '__main__':
-    log = False
-    robot = Robot(0.0682, 0.275, ARDUINO_HCR, LIDAR_DEVICE, log)
+    
+    robot = Robot(0.0682, 0.275, ARDUINO_HCR, LIDAR_DEVICE)
     
     Vu = 0.3
     xg, yg = 30, 0
@@ -98,7 +98,8 @@ if __name__ == '__main__':
             robot.update_state()
             #LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, robot.scan)
             #robot.drive(LinearVelocity, AngularVelocity)
-            robot.drive(0, -1)
+            robot.drive(0.2, 0.5)
+            robot.write_log()
             #print('vr: {0}, vl: {1}'.format(robot.vr, robot.vl))
         except KeyboardInterrupt:
             robot.stop()

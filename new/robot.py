@@ -6,13 +6,13 @@ from utils import normalize_angle, scan2distVec
 file = open("log.txt", "w")
 
 class Robot:
-    def __init__(self,wheel_radius , wheel_dist,  ARDUINO_HCR, LIDAR_DEVICE, log=None):
+    def __init__(self,wheel_radius , wheel_dist,  ARDUINO_HCR, LIDAR_DEVICE):
         # Connect to Arduino unit
         self.arduino   = Serial(ARDUINO_HCR, 57600)
         # Connect to Lidar unit
         self.lidar = Lidar(LIDAR_DEVICE)
         # Create an iterator to collect scan data from the RPLidar
-        self.iterator = lidar.iter_scans()
+        self.iterator = self.lidar.iter_scans()
         # First scan is crap, so ignore it
         next(self.iterator)
         self.lidar = None
@@ -31,7 +31,7 @@ class Robot:
         self.prev_time = time.time()
         self.current_time = time.time()
         self.dt = 0
-        self.log=None
+        
         
 
     def update_state(self):
@@ -59,13 +59,11 @@ class Robot:
     def stop(self):
         # Shut down the lidar connection
         print('Stoping.')
-    
-        self.lidar.stop()
-        self.lidar.disconnect()
-        if self.log == True:
-            file.close()
+        file.close()
         self.arduino.setSerialData(0,0)
         self.arduino.close_connect()
+        self.lidar.stop()
+        self.lidar.disconnect()
 
     def vRToDrive(self, vLinear, vAngular):
         return ((2 * vLinear) + (self.WHEELS_DIST * vAngular)) / 2
