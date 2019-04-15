@@ -3,6 +3,8 @@ from rplidar import RPLidar as Lidar
 import math
 import time
 from utils import normalize_angle, scan2distVec
+file = open("log.txt", "w")
+
 class Robot:
     def __init__(self,wheel_radius , wheel_dist,  ARDUINO_HCR, LIDAR_DEVICE, log=None):
         # Connect to Arduino unit
@@ -74,8 +76,6 @@ class Robot:
     def drive(self, vLinear, vAngular):
         vr = self.vRToDrive(vLinear, vAngular)
         vl = self.vLToDrive(vLinear, vAngular)
-##        vr, vl = 0.2, -0.2
-##        print(vr, vl)
         self.arduino.setSerialData(round(vr,1), round(vl,1))
 
     def sense(self):
@@ -87,7 +87,7 @@ class Robot:
         self.scan = [[item[1], item[2]] for item in next(self.iterator)]
 
     def write_log(self):
-        
-        log_data = str(round(0, 2))+' '+str(round(0, 2))+' '+str(round(0, 2))+' '+str(round(0, 2))+' '+' '.join(str(el) for el in dist_vec)+'\n'
+        dist_vec = scan2distVec(self.scan)
+        log_data = str(round(self.current_time, 2))+' '+str(round(self.x, 2))+' '+str(round(self.y, 2))+' '+str(round(self.yaw, 2))+' '+' '.join(str(el) for el in dist_vec)+'\n'
         file.write(log_data)
         
