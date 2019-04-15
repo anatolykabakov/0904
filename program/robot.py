@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 from remote_api import Serial
 from rplidar import RPLidar as Lidar
+=======
+import time
+>>>>>>> 40c9de37aabf29c3c155ee7d99945b860743e86d
 import math
 from utils import normalize_angle
 class Robot:
@@ -51,10 +55,10 @@ class Robot:
         self.arduino.setSerialData(0,0)
         self.arduino.close_connect()
 
-    def __vRToDrive(self, vLinear, vAngular):
+    def vRToDrive(self, vLinear, vAngular):
         return (((2 * vLinear) + (self.WHEELS_DIST * vAngular)) / (2));
 
-    def __vLToDrive(self, vLinear, vAngular):
+    def vLToDrive(self, vLinear, vAngular):
         return (((2 * vLinear) - (self.WHEELS_DIST * vAngular)) / (2));
 
     def drive(self, vLinear, vAngular):

@@ -92,11 +92,29 @@ if __name__ == '__main__':
 
     stop = False
     while stop!=True:
+<<<<<<< HEAD
         try:
             robot.sense()
             robot.update_state()
             LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, robot.scan)
             robot.drive(LinearVelocity, AngularVelocity)
             print('vr: {0}, vl: {1}'.format(vr, vl))
+=======
+        try: 
+            vr, vl = arduino.getSerialData()
+            print('return vr: {0}, vl: {1}'.format(vr,vl))
+            robot.update_state(vr, vl)
+            # Extract (quality, angle, distance) triples from current scan
+            items = [[item[1], item[2]] for item in next(iterator)]
+
+            LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, items)
+            vR = robot.vRToDrive(LinearVelocity, AngularVelocity)
+            vL = robot.vLToDrive(LinearVelocity, AngularVelocity)
+            arduino.setSerialData(round(vR,2), round(vL,2))
+            print(LinearVelocity,AngularVelocity)
+            print('send vr: {0}, vl: {1}'.format(round(vR,2), round(vL,2)))
+            #time.sleep(0.05)
+            #print(vr, vl)
+>>>>>>> 40c9de37aabf29c3c155ee7d99945b860743e86d
         except KeyboardInterrupt:
             robot.stop()
