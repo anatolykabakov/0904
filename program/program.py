@@ -1,5 +1,3 @@
-from remote_api import Serial
-from rplidar import RPLidar as Lidar
 import time
 import math
 from robot import Robot
@@ -17,9 +15,9 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
     Vu - желаемая скорость движения
     scan - массив точек лидара
     '''
-    rd = 0.8 # дистанция рекции
+    rd = 2 # дистанция рекции
     Ka = 1.0 # коэффициент притяжения
-    Kr = 1.0 # коэффициент отталкивания
+    Kr = 2.0 # коэффициент отталкивания
     dg = math.sqrt((xg-xr)**2+(yg-yr)**2)#расстояние до цели
     if dg <= 0.1:
         stop = True
@@ -44,7 +42,7 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
         per = -1*math.pi/2
         # Множество отталкивания
         if ((dist <= rd) and  ((0<=alpha<=math.pi/2) or (3*math.pi/2<=alpha<=2*math.pi)) ):
-            f = ((rd - dist)/rd)
+            f = ((rd - dist)/rd)**2
             Xrf.append(f*math.cos(gamma))
             Yrf.append(f*math.sin(gamma))
             test_dist.append(round(dist,1))
@@ -56,20 +54,22 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
         RF = [sum(Xrf)/len(Xrf), sum(Yrf)/len(Yrf)]
     else:
         RF=[0,0]
+    print(RF)
     
     #Вектор притяжения
     Xra = (xg-xr)/dg
     Yra = (yg-yr)/dg
     RA = [Xra,Yra]
+    print(RA)
     #Вектор движения
     Xrf = RF[0]
     Yrf = RF[1]
     RV_x = Xra*Ka-Xrf*Kr
     RV_y = Yra*Ka-Yrf*Kr
-    #print(RV_x, RV_y)
+    print(RV_x, RV_y)
     LinearVelocity = Vu*math.sqrt(RV_x**2+RV_y**2)
-    AngularVelocity = Vu*2*math.atan2(RV_y, RV_x)/0.1875/math.pi
-    #AngularVelocity = math.atan2(RV_y, RV_x)
+    #AngularVelocity = Vu*2*math.atan2(RV_y, RV_x)/0.1875/math.pi
+    AngularVelocity = 3*math.atan2(RV_y, RV_x)
     return LinearVelocity, AngularVelocity,stop
         
  
@@ -85,40 +85,18 @@ def scan2distVec(scan):
     return distVec
 
 if __name__ == '__main__':
-    robot = Robot(0.0682, 0.275)
-    # Connect to Arduino unit
-    arduino   = Serial(ARDUINO_HCR, 57600)
-    # Connect to Lidar unit
-    lidar = Lidar(LIDAR_DEVICE)
+    robot = Robot(0.0682, 0.275, ARDUINO_HCR, LIDAR_DEVICE)
     
-    # Create an iterator to collect scan data from the RPLidar
-    iterator = lidar.iter_scans()
-
     Vu = 0.3
     xg, yg = 30, 0
 
-
-    # First scan is crap, so ignore it
-    next(iterator)
-
     stop = False
     while stop!=True:
-        try: 
-            vr, vl = arduino.getSerialData()
-            robot.update_state(vr, vl)
-            # Extract (quality, angle, distance) triples from current scan
-            items = [[item[1], item[2]] for item in next(iterator)]
-
-            LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, items)
-            vr = robot.__vRToDrive(LinearVelocity, AngularVelocity)
-            vl = robot.__vLToDrive(LinearVelocity, AngularVelocity)
-            arduino.setSerialData(vr, vl)
-            print('vr: {2}, vl: {3}'.format(vr, vl))
-            #print(vr, vl)
+        try:
+            robot.sense()
+            robot.update_state()
+            LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, robot.scan)
+            robot.drive(LinearVelocity, AngularVelocity)
+            print('vr: {0}, vl: {1}'.format(vr, vl))
         except KeyboardInterrupt:
-            arduino.close_connect()
-            # Shut down the lidar connection
-            print('Stoping.')
-            lidar.stop()
-            lidar.disconnect()
-            arduino.setSerialData(0,0)
+            robot.stop()

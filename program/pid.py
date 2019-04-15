@@ -11,7 +11,7 @@ if __name__ == '__main__':
     while full_time <= 5:
         
         vr, vl = serial.getSerialData()
-##        print(vr, vl)
+        print(vr, vl)
         prev_time = current_time
         current_time = time.time()
         delta_time = current_time - prev_time
