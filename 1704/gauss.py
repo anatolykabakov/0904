@@ -100,8 +100,7 @@ if __name__ == '__main__':
     xDR = np.array([[0, 0, 0]]).T
     log_xDR_x = []
     log_xDR_y = []
-    linear_velocity = 1#m/s
-    angular_velocity = 0.5#rad/s
+
 
 
     target_idx = 0
@@ -118,6 +117,6 @@ if __name__ == '__main__':
         log_xDR_y.append(robot.y)
         plt.plot(log_xDR_x, log_xDR_y, '.b')
         plt.pause(0.001)
-        plt.clf()
+        #plt.clf()
 
 

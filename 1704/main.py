@@ -29,6 +29,24 @@ def get_point(cx, cy, robot, target_idx):
     yg = cy[target_idx]
     return xg, yg, target_idx
 
+def normalize_angle(angle):
+    """
+    Normalize an angle to [-pi, pi].
+    :param angle: (float)
+    :return: (float) Angle in radian in [-pi, pi]
+    """
+    while angle > np.pi:
+        angle -= 2.0 * np.pi
+    while angle < -np.pi:
+        angle += 2.0 * np.pi
+    return angle
+
+def controller(robot, xg, yg):
+    dx = xg-robot.x
+    dy = yg-robot.y
+    e_angle = normalize_angle(math.atan2(dy, dx)-robot.yaw)
+    return e_angle
+
 def potencial_field(xr, yr, xg, yg, Vu, scan):
     '''
     xr - x координата робота в метрах
@@ -121,14 +139,18 @@ if __name__ == '__main__':
     Vu = 0.3
 ##    xg, yg = 30, 0
     target_idx = 0
+    LinearVelocity = 0.2
+    AngularVelocity = 0
 
     stop = False
     while True:
         try:
-            xg, yg, target_idx = get_point(cx, cy, robot, target_idx)
+            
             robot.sense()
             robot.update_state()
-            LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, robot.scan)
+            xg, yg, target_idx = get_point(cx, cy, robot, target_idx)
+            AngularVelocity = controller(robot, xg, yg)
+            #LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, robot.scan)
             robot.drive(LinearVelocity, AngularVelocity)
             #robot.drive(0.2, 0.5)
             #robot.write_log()
