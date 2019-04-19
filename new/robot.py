@@ -86,6 +86,6 @@ class Robot:
 
     def write_log(self):
         dist_vec = scan2distVec(self.scan)
-        log_data = str(round(self.current_time, 2))+' '+str(round(self.x, 2))+' '+str(round(self.y, 2))+' '+str(round(self.yaw, 2))+' '+' '.join(str(el) for el in dist_vec)+'\n'
+        log_data = str(round(self.current_time, 2))+' '+ str(round(self.vr, 2))+ ' ' + str(round(self.vl, 2))+ ' ' + str(round(self.x, 2))+' '+str(round(self.y, 2))+' '+str(round(self.yaw, 2))+' '+' '.join(str(el) for el in dist_vec)+'\n'
         file.write(log_data)
         
