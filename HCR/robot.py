@@ -10,12 +10,11 @@ class Robot:
         # Connect to Arduino unit
         self.arduino   = Serial(ARDUINO_HCR, 57600)
         # Connect to Lidar unit
-        if LIDAR_DEVICE:
-            self.lidar = Lidar(LIDAR_DEVICE)
-            # Create an iterator to collect scan data from the RPLidar
-            self.iterator = self.lidar.iter_scans()
-            # First scan is crap, so ignore it
-            next(self.iterator)
+        self.lidar = Lidar(LIDAR_DEVICE)
+        # Create an iterator to collect scan data from the RPLidar
+        self.iterator = self.lidar.iter_scans()
+        # First scan is crap, so ignore it
+        next(self.iterator)
         self.lidar = None
         self.WHEELS_DIST = wheel_dist
         self.WHEELS_RAD  = wheel_radius
@@ -80,13 +79,13 @@ class Robot:
     def sense(self):
         #get odometry data
         self.vr, self.vl = self.arduino.getSerialData()
-        if self.lidar:
-            #get laser dara
-            # Extract (quality, angle, distance) triples from current scan
-            self.scan = [[item[1], item[2]] for item in next(self.iterator)]
+        
+        #get laser dara
+        # Extract (quality, angle, distance) triples from current scan
+        self.scan = [[item[1], item[2]] for item in next(self.iterator)]
 
     def write_log(self):
         dist_vec = scan2distVec(self.scan)
-        log_data = str(round(self.current_time, 2))+' '+str(round(self.x, 2))+' '+str(round(self.y, 2))+' '+str(round(self.yaw, 2))+' '+' '.join(str(el) for el in dist_vec)+'\n'
+        log_data = str(round(self.current_time, 2))+' '+ str(round(self.vr, 2))+ ' ' + str(round(self.vl, 2))+ ' ' + str(round(self.x, 2))+' '+str(round(self.y, 2))+' '+str(round(self.yaw, 2))+' '+' '.join(str(el) for el in dist_vec)+'\n'
         file.write(log_data)
         

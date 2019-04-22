@@ -2,8 +2,10 @@ import numpy as np
 from numpy.random import uniform
 import matplotlib.pyplot as plt
 import math
+from remote_api import Serial
+from robot import Robot
 
-class Robot(object):
+class Robot_Diff(object):
 
     def __init__(self, x=0.0, y=0.0, yaw=0.0, v=0.0):
         """Instantiate the object."""
@@ -85,13 +87,14 @@ def controller(robot, xg, yg):
     return e_angle
 
 if __name__ == '__main__':
-
-    robot = Robot()
+    #arduino = Serial('com4', 57600)
+    ARDUINO_HCR = 'com4'
+    robot = Robot(0.0682, 0.275, ARDUINO_HCR, None)
     '0. Randomly generate a bunch of particles'
     N = 10
 
-    x_range = (0,2)
-    y_range = (0,2)
+    x_range = (0,1)
+    y_range = (0,1)
     hdg_range = (0, 6.28)
     cx, cy = create_uniform_particles(x_range, y_range, hdg_range, N)
 
@@ -107,11 +110,14 @@ if __name__ == '__main__':
     v = 0.2
 
     while True:
+        robot.sense()
+        robot.update_state()
         xg, yg, target_idx = get_point(cx, cy, robot, target_idx)
         #print(xg, yg)
         w = controller(robot, xg, yg)
         #print(w)
-        robot.update(v, w, 0.1)
+        robot.drive(v, w)
+        #robot.update(v, w, 0.1)
 
         log_xDR_x.append(robot.x)
         log_xDR_y.append(robot.y)
