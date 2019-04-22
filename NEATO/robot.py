@@ -43,8 +43,13 @@ class Robot(object):
     def sense(self):
         #get odometry data
         wheel = self.neato_api.getMotor()
-        self.vr = wheel['RightWheel_Speed']/1000
-        self.vl = wheel['LeftWheel_Speed']/1000)
+        print(wheel)
+        if wheel:
+            self.vr = wheel['RightWheel_Speed']/1000
+            self.vl = wheel['LeftWheel_Speed']/1000
+        else:
+            self.vl = 0
+            self.vr = 0
 
         #get laser data
         scan = self.neato_api.getScan()
@@ -56,10 +61,10 @@ class Robot(object):
         #print(self.delta_time)
 
     def vRToDrive(self, vLinear, vAngular):
-        return ((2 * vLinear) + (self.WHEELS_DIST * vAngular)) / 2
+        return ((2 * vLinear) + (self.length * vAngular)) / 2
 
     def vLToDrive(self, vLinear, vAngular):
-        return ((2 * vLinear) - (self.WHEELS_DIST * vAngular))/ 2
+        return ((2 * vLinear) - (self.length * vAngular))/ 2
 
     def drive(self, vLinear, vAngular):
         vr = self.vRToDrive(vLinear, vAngular)
@@ -69,4 +74,4 @@ class Robot(object):
         speed = round(vLinear,2)*1000
         if speed >= 300:
             speed = 300
-        self.neato_api.setMotors(self, leftDist, rightDist, speed)
+        self.neato_api.setMotors(leftDist, rightDist, speed)

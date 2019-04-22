@@ -1,5 +1,5 @@
 import serial
-import socket
+#import socket
 import time
 import sys
 
@@ -17,11 +17,12 @@ class Neato_API(object):
     # Constructor opens socket to server
     def __init__(self, port, speed, timeout):
         self.robot = self.connect(port, speed, timeout)
-        self.enableTestMode(self.robot)
-        self.LidarOn(self.robot)
+        self.enableTestMode()
+        self.LidarOn()
         
     def docommand(self, port, command):
-        port.write(command + '\n')
+        to_port = command + '\n'
+        port.write(to_port.encode())
 
     def connect(self, port, speed, timeout):
         return serial.Serial(port, speed, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout)
@@ -51,6 +52,7 @@ class Neato_API(object):
                     
             # Grab scan results till CTRL-Z
             scandata = self.robot.read(MAX_SCANDATA_BYTES)
+            scandata = scandata.decode()
                         
         # Stubbed version sends constant distances
         else:
@@ -83,7 +85,8 @@ class Neato_API(object):
             self.docommand(self.robot, command) 
             line = self.robot.read(647)
             
-        line      = line.split('\r\n')
+        line      = line.decode().split('\r\n')
+        
         for l in line[2:-1]:
             r = l.split(',')
             name = r[0]
