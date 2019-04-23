@@ -129,15 +129,17 @@ class xv11():
 
     def setTestMode(self, value):
         """ Turn test mode on/off. """
-        self.port.write("testmode " + value + "\n")
+        command = "testmode " + value + "\n"
+        self.port.write(command.encode())
 
     def setLDS(self, value):
-        self.port.write("setldsrotation " + value + "\n")
+        command = "setldsrotation " + value + "\n"
+        self.port.write(command.encode())
 
     def requestScan(self):
         """ Ask neato for an array of scan reads. """
         self.port.flushInput()
-        self.port.write("getldsscan\n")
+        self.port.write("getldsscan\n".encode())
 
     def getScanRanges(self):
         """ Read values of a scan -- call requestScan first! """
@@ -183,14 +185,14 @@ class xv11():
                 s = 1
         else:
             self.stop_state = False
-
-        self.port.write("setmotor "+str(int(l))+" "+str(int(r))+" "+str(int(s))+"\n")
+        command = "setmotor "+str(int(l))+" "+str(int(r))+" "+str(int(s))+"\n"
+        self.port.write(command.encode())
 
     def getMotors(self):
         """ Update values for motors in the self.state dictionary.
             Returns current left, right encoder values. """
         self.port.flushInput()
-        self.port.write("getmotors\n")
+        self.port.write("getmotors\n".encode())
         line = self.port.readline()
         while line.split(",")[0] != "Parameter":
             try:
@@ -207,7 +209,7 @@ class xv11():
 
     def getAnalogSensors(self):
         """ Update values for analog sensors in the self.state dictionary. """
-        self.port.write("getanalogsensors\n")
+        self.port.write("getanalogsensors\n".encode())
         line = self.port.readline()
         while line.split(",")[0] != "SensorName":
             try:
@@ -223,7 +225,7 @@ class xv11():
 
     def getDigitalSensors(self):
         """ Update values for digital sensors in the self.state dictionary. """
-        self.port.write("getdigitalsensors\n")
+        self.port.write("getdigitalsensors\n".encode())
         line = self.port.readline()
         while line.split(",")[0] != "Digital Sensor Name":
             try:
@@ -239,7 +241,7 @@ class xv11():
 
     def getCharger(self):
         """ Update values for charger/battery related info in self.state dictionary. """
-        self.port.write("getcharger\n")
+        self.port.write("getcharger\n".encode())
         line = self.port.readline()
         while line.split(",")[0] != "Label":
             line = self.port.readline()
@@ -252,9 +254,9 @@ class xv11():
 
     def setBacklight(self, value):
         if value > 0:
-            self.port.write("setled backlighton")
+            self.port.write("setled backlighton".encode())
         else:
-            self.port.write("setled backlightoff")
+            self.port.write("setled backlightoff".encode())
 
     #SetLED - Sets the specified LED to on,off,blink, or dim. (TestMode Only)
     #BacklightOn - LCD Backlight On  (mutually exclusive of BacklightOff)
