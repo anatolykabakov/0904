@@ -146,17 +146,17 @@ class xv11():
         ranges = list()
         angle = 0
         try:
-            line = self.port.readline()
+            line = self.port.readline().decode()
         except:
             return []
         while line.split(",")[0] != "AngleInDegrees":
             try:
-                line = self.port.readline()
+                line = self.port.readline().decode()
             except:
                 return []
         while angle < 360:
             try:
-                vals = self.port.readline()
+                vals = self.port.readline().decode()
             except:
                 pass
             vals = vals.split(",")
@@ -196,12 +196,12 @@ class xv11():
         line = self.port.readline()
         while line.split(",")[0] != "Parameter":
             try:
-                line = self.port.readline()
+                line = self.port.readline().decode()
             except:
                 return [0,0]
         for i in range(len(xv11_motor_info)):
             try:
-                values = self.port.readline().split(",")
+                values = self.port.readline().decode().split(",")
                 self.state[values[0]] = int(values[1])
             except:
                 pass
