@@ -129,34 +129,32 @@ class xv11():
 
     def setTestMode(self, value):
         """ Turn test mode on/off. """
-        command = "testmode " + value + "\n"
-        self.port.write(command.encode())
+        self.port.write("testmode " + value + "\n")
 
     def setLDS(self, value):
-        command = "setldsrotation " + value + "\n"
-        self.port.write(command.encode())
+        self.port.write("setldsrotation " + value + "\n")
 
     def requestScan(self):
         """ Ask neato for an array of scan reads. """
         self.port.flushInput()
-        self.port.write("getldsscan\n".encode())
+        self.port.write("getldsscan\n")
 
     def getScanRanges(self):
         """ Read values of a scan -- call requestScan first! """
         ranges = list()
         angle = 0
         try:
-            line = self.port.readline().decode()
+            line = self.port.readline()
         except:
             return []
         while line.split(",")[0] != "AngleInDegrees":
             try:
-                line = self.port.readline().decode()
+                line = self.port.readline()
             except:
                 return []
         while angle < 360:
             try:
-                vals = self.port.readline().decode()
+                vals = self.port.readline()
             except:
                 pass
             vals = vals.split(",")
@@ -185,23 +183,23 @@ class xv11():
                 s = 1
         else:
             self.stop_state = False
-        command = "setmotor "+str(int(l))+" "+str(int(r))+" "+str(int(s))+"\n"
-        self.port.write(command.encode())
+
+        self.port.write("setmotor "+str(int(l))+" "+str(int(r))+" "+str(int(s))+"\n")
 
     def getMotors(self):
         """ Update values for motors in the self.state dictionary.
             Returns current left, right encoder values. """
         self.port.flushInput()
-        self.port.write("getmotors\n".encode())
+        self.port.write("getmotors\n")
         line = self.port.readline()
         while line.split(",")[0] != "Parameter":
             try:
-                line = self.port.readline().decode()
+                line = self.port.readline()
             except:
                 return [0,0]
         for i in range(len(xv11_motor_info)):
             try:
-                values = self.port.readline().decode().split(",")
+                values = self.port.readline().split(",")
                 self.state[values[0]] = int(values[1])
             except:
                 pass
@@ -209,7 +207,7 @@ class xv11():
 
     def getAnalogSensors(self):
         """ Update values for analog sensors in the self.state dictionary. """
-        self.port.write("getanalogsensors\n".encode())
+        self.port.write("getanalogsensors\n")
         line = self.port.readline()
         while line.split(",")[0] != "SensorName":
             try:
@@ -225,7 +223,7 @@ class xv11():
 
     def getDigitalSensors(self):
         """ Update values for digital sensors in the self.state dictionary. """
-        self.port.write("getdigitalsensors\n".encode())
+        self.port.write("getdigitalsensors\n")
         line = self.port.readline()
         while line.split(",")[0] != "Digital Sensor Name":
             try:
@@ -241,7 +239,7 @@ class xv11():
 
     def getCharger(self):
         """ Update values for charger/battery related info in self.state dictionary. """
-        self.port.write("getcharger\n".encode())
+        self.port.write("getcharger\n")
         line = self.port.readline()
         while line.split(",")[0] != "Label":
             line = self.port.readline()
@@ -254,9 +252,9 @@ class xv11():
 
     def setBacklight(self, value):
         if value > 0:
-            self.port.write("setled backlighton".encode())
+            self.port.write("setled backlighton")
         else:
-            self.port.write("setled backlightoff".encode())
+            self.port.write("setled backlightoff")
 
     #SetLED - Sets the specified LED to on,off,blink, or dim. (TestMode Only)
     #BacklightOn - LCD Backlight On  (mutually exclusive of BacklightOff)
