@@ -39,12 +39,12 @@ class Neato_API(object):
         self.docommand(self.robot, 'SetLDSRotation off')
 
     def recieve_data(self):
-        self.robot.flushInput()
         stop_bit = b'\x1a'
         line = b''
-        data = b''
-        while data != stop_bit:
+        
+        while True:
             data = self.robot.read(1)
+            if data == stop_bit
             line += data
         return line
         
@@ -54,15 +54,15 @@ class Neato_API(object):
         scandata = None
             
         # Run scan command
-        self.docommand('GetLDSScan')
+        self.send('GetLDSScan\n')
                 
         # Grab scan results till CTRL-Z
         scandata = self.recieve_data()
-        scandata = scandata.decode()
+        scandata = scandata.decode().split('\r\n')
                                               
         # Parse the scan into a list of tuples
         scanvals = []
-        for line in scandata.split('\n'):
+        for line in scandata[2:-2]:
             try:
                 vals = line.split(',')
                 # Only use legitimate scan tuples with zero error
