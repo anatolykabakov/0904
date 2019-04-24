@@ -20,9 +20,8 @@ class Neato_API(object):
         self.enableTestMode()
         self.LidarOn()
         
-    def docommand(self, port, command):
-        to_port = command + '\n'
-        port.write(to_port.encode())
+    def send(self, command):
+        port.write(command.encode())
 
     def connect(self, port, speed, timeout):
         return serial.Serial(port, speed, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout)
@@ -38,29 +37,29 @@ class Neato_API(object):
     def LidarOff(self):
         # Spin up the LIDAR
         self.docommand(self.robot, 'SetLDSRotation off')
+
+    def recieve_data(self):
+        self.robot.flushInput()
+        stop_bit = b'\x1a'
+        line = b''
+        data = b''
+        while data != stop_bit:
+            data = self.robot.read(1)
+            line += data
+        return line
         
     # Get LIDAR scan. 
     # Returns scan as a list of (angle, distance, intensity) tuples
     def getScan(self):
         scandata = None
             
-        # Robot sends scaled LSD sensor values scaled to (0,1)
-        if self.robot:
-        
-            # Run scan command
-            self.docommand(self.robot, 'GetLDSScan')
-                    
-            # Grab scan results till CTRL-Z
-            scandata = self.robot.read(MAX_SCANDATA_BYTES)
-            scandata = scandata.decode()
-                        
-        # Stubbed version sends constant distances
-        else:
-            scandata = ''
-            for k in range(360):
-                scandata = scandata + str(k) + ',1500,100,0\n'  
-
-                                
+        # Run scan command
+        self.docommand('GetLDSScan')
+                
+        # Grab scan results till CTRL-Z
+        scandata = self.recieve_data()
+        scandata = scandata.decode()
+                                              
         # Parse the scan into a list of tuples
         scanvals = []
         for line in scandata.split('\n'):
@@ -77,28 +76,29 @@ class Neato_API(object):
                 None
                 
         return scanvals
-    def getMotor(self):
+    def getEncoders(self):
         wheel = {}
 
-        command = 'GetMotors' 
-        if self.robot:
-            self.docommand(self.robot, command) 
-            line = self.robot.read(647)
-            
-        line      = line.decode().split('\r\n')
+        command = 'GetMotors\n' 
         
-        for l in line[2:-1]:
+        self.docommand(command) 
+        line = self.recieve_data().decode().split('\r\n')
+        
+        for l in line:
             r = l.split(',')
             name = r[0]
             value = r[1]
             wheel[name] = int(value)
 
-        return wheel
+        rightEncoders = wheel['RightWheel_Speed']/1000
+        leftEncoders  = wheel['LeftWheel_Speed']/1000
+
+        return rightEncoders, leftEncoders
 
         
     # Send robot server a mesage to set motor distances and speed
     def setMotors(self, leftDist, rightDist, speed):
-        message = 'm ' + str(leftDist) + ' ' + str(rightDist) + ' ' + str(speed)
+        message = str(leftDist) + ' ' + str(rightDist) + ' ' + str(speed)
         command = 'SetMotor' + message[1:]    
                                     
         if self.robot:

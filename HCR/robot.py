@@ -13,9 +13,7 @@ class Robot:
         self.lidar = Lidar(LIDAR_DEVICE)
         # Create an iterator to collect scan data from the RPLidar
         self.iterator = self.lidar.iter_scans()
-        # First scan is crap, so ignore it
-        next(self.iterator)
-        self.lidar = None
+
         self.WHEELS_DIST = wheel_dist
         self.WHEELS_RAD  = wheel_radius
         self.x = 0
