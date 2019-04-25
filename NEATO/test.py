@@ -12,11 +12,49 @@ class xv21(object):
         
         data = self.read()
         data = data.decode().split('\r\n')
-        return data
+        for l in line[2:-1]:
+            r = l.split(',')
+            name = r[0]
+            value = r[1]
+            wheel[name] = int(value)
+
+        right = wheel['RightWheel_Speed']/1000
+        left  = wheel['LeftWheel_Speed']/1000
+        
+        return right, left
+    
     def getScan(self):
+        scanvals=[]
         self.connect.write('GetLDSScan\n'.encode())
-        scan = self.read()
-        return scan
+        scan = self.read().decode().split('\r\n')
+        for line in scan[2:-2]:
+            try:
+                vals = line.split(',')
+                # Only use legitimate scan tuples with zero error
+                if len(vals) == 4 and not int(vals[3]):
+                    angle = int(vals[0])
+                    distance = int(vals[1])
+                    intensity = int(vals[2])
+                    scanvals.append([angle, distance])
+                    
+            except:
+                None
+        return scanvals
+    
+    def setMotors(self, l, r, s):
+        """ Set motors, distance left & right + speed """
+        
+        if (int(l) == 0 and int(r) == 0 and int(s) == 0):
+            if (not self.stop_state):
+                self.stop_state = True
+                l = 1
+                r = 1
+                s = 1
+        else:
+            self.stop_state = False
+        command = "setmotor "+str(int(l))+" "+str(int(r))+" "+str(int(s))+"\n"
+        self.port.write(command.encode())
+        
     def read(self):
         line = b''
         while True:
