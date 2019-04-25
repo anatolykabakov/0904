@@ -16,21 +16,46 @@ def read_all(port, chunk_size=200):
        return read_buffer
 
 def get_encoders(neato):
-    #neato.write('GetMotors\n'.encode())
+    #neato.flush()
+    neato.write('GetMotors\r\n'.encode())
+    #time.sleep(0.1)
+    #neato.read(val)
     line = b''
-    data = neato.read(2)
-    while data != b'\x1a\x1a':
-        data = neato.read(2)
+    data = neato.read(1)
+    while True:
+        data = neato.read()
+        #if data == b'':
+        #    time.sleep('0.01')
         line+=data
-        
+        print(line)
     return line
 
+def f1(neato):
+    enc = []
+    neato.write('getmotors\r\n'.encode())
+    time.sleep(1)
+    line = neato.readline().decode()
+    print(line)
+    while line.split(',')[0]!='Parameter':
+        time.sleep(0.1)
+        line = neato.readline().decode()
+        print(line)
+        
+    for i in range(16):
+        values = neato.readline().decode().split(',')
+        enc.append(value)
+        print(value)
+    return enc
+
+
 if __name__ == '__main__':
-    neato = serial.Serial('/dev/ttyACM3',115200,serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE,0.1)
-    neato.write('testmode on\n'.encode())
-    neato.write('setldsrotation on\n'.encode())
-    neato.write('getmotors\m'.encode())
-    data = read_all(neato)
+    neato = serial.Serial('/dev/ttyACM1',115200)
+    neato.write('testmode on\r\n'.encode())
+    #neato.write('setldsrotation on\r\n'.encode())
+    #neato.write('getmotors\m'.encode())
+    #data = read_all(neato)
+    data = get_encoders(neato)
+    #data = f1(neato)
     print(data)
  
     
