@@ -33,7 +33,7 @@ ROS Bindings can be found in the neato_node package.
 __author__ = "ferguson@cs.albany.edu (Michael Ferguson)"
 
 import serial
-
+import time
 BASE_WIDTH = 248    # millimeters
 MAX_SPEED = 300     # millimeters/second
 
@@ -193,10 +193,12 @@ class xv11():
             Returns current left, right encoder values. """
         self.port.flushInput()
         self.port.write("getmotors\n".encode())
-        line = self.port.readline()
+        line = self.port.readline().decode()
         while line.split(",")[0] != "Parameter":
             try:
                 line = self.port.readline().decode()
+                time.sleep(0.01)
+                print(line)
             except:
                 return [0,0]
         for i in range(len(xv11_motor_info)):
@@ -205,6 +207,7 @@ class xv11():
                 self.state[values[0]] = int(values[1])
             except:
                 pass
+        print(state)
         return [self.state["LeftWheel_PositionInMM"],self.state["RightWheel_PositionInMM"]]
 
     def getAnalogSensors(self):

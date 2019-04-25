@@ -42,7 +42,8 @@ class Robot(object):
         
     def sense(self):
         #get odometry data
-        rightEncoders, leftEncoders = self.neato_api.getMotors()
+        rightEncoders, leftEncoders = self.neato_api.getEncoders()
+        print(rightEncoders, liftEncoders)
 
         #get laser data
         scan = self.neato_api.getScan()

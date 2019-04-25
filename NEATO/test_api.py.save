@@ -1,0 +1,26 @@
+
+import serial
+import time
+
+def get_encoders(neato):
+    #neato.write('getmotors\n'.encode())
+    line = b''
+    while True:
+        data = neato.read(1)
+        if data == b'\x1a':
+            break
+        line+=data
+    return line
+
+if __name__ == '__main__':
+    neato = serial.Serial('/dev/ttyACM2',115200)
+    neato.write('testmode on\n'.encode())
+    neato.write('setldsrotation on\n'.encode())
+    neato.flushInput()
+    neato.write('getmotors\n'.encode())
+    data = get_encoders(neato)
+    print(data)
+    data = get_encoders(neato)
+    print(data)
+    
+    

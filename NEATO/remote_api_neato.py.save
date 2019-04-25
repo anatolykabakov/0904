@@ -41,15 +41,14 @@ class Neato_API(object):
     def recieve_data(self):
         stop_bit = b'\x1a'
         line = b''
-        first = False
+        
         while True:
             data = self.robot.read(1)
-            if data == stop_bit:
-                break
+            #f data == stop_bit:
+                #print('1')
+                #break
             line += data
-
-            #print(line)
-        #line = self.robot.read(300)
+            print(line)
         return line
         
     # Get LIDAR scan. 
@@ -83,15 +82,14 @@ class Neato_API(object):
     def getEncoders(self):
         wheel = {}
 
-        command = 'getmotors\n' 
+        command = 'GetMotors\n' 
         
         self.send(command)
-        #time.sleep(0.01)
         #self.robot.flushInput() 
         line = self.recieve_data().decode().split('\r\n')
-        print(line)
-        line = self.recieve_data().decode().split('\r\n')
-        print(line)
+        #print(line)
+        #line = self.recieve_data().decode().split('\r\n')
+        #print(line)
         for l in line:
             r = l.split(',')
             name = r[0]

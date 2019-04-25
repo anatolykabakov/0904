@@ -2,7 +2,7 @@ import time
 import math
 from robot import Robot
 
-NEATO_PORT             = '/dev/ttyACM0'
+NEATO_PORT             = '/dev/ttyACM1'
 # These are sensible values for an ad-hoc wifi network
 PORT_SPEED = 115200
 # Serial-port timeout
