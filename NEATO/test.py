@@ -15,7 +15,7 @@ class xv21(object):
         return data
     def getScan(self):
         self.connect.write('GetLDSScan\n'.encode())
-        scan = self.read()
+        scan = self.read().decode().split('\r\n')
         return scan
     def read(self):
         line = b''
