@@ -28,6 +28,7 @@ class Neato_API(object):
             
     def enableTestMode(self):
         # Put the XV-11 into test mode
+<<<<<<< HEAD
         self.send('TestMode on\n')
         
     def LidarOn(self):
@@ -37,6 +38,17 @@ class Neato_API(object):
     def LidarOff(self):
         # Spin up the LIDAR
         self.send('SetLDSRotation off\n')
+=======
+        self.send(self.robot, 'TestMode on')
+        
+    def LidarOn(self):
+        # Spin up the LIDAR
+        self.send(self.robot, 'SetLDSRotation on')
+
+    def LidarOff(self):
+        # Spin up the LIDAR
+        self.send(self.robot, 'SetLDSRotation off')
+>>>>>>> 813af25a351a8155968870f98bace952f7d2899e
 
     def recieve_data(self):
         stop_bit = b'\x1a'
@@ -85,9 +97,13 @@ class Neato_API(object):
 
         command = 'getmotors\n' 
         
+<<<<<<< HEAD
         self.send(command)
         #time.sleep(0.01)
         #self.robot.flushInput() 
+=======
+        self.send(command) 
+>>>>>>> 813af25a351a8155968870f98bace952f7d2899e
         line = self.recieve_data().decode().split('\r\n')
         print(line)
         line = self.recieve_data().decode().split('\r\n')
