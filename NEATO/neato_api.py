@@ -6,6 +6,7 @@ class xv21(object):
         self.connect = serial.Serial(port, 115200)
         self.TestMode('on')
         self.Lidar('on')
+        self.stop_state = True
  
     def TestMode(self,flag):
         message = 'TestMode '+ flag + '\n'

@@ -1,3 +1,4 @@
+import time
 import math
 from neato_api import xv21
 BASE_WIDTH = 248    # millimeters
@@ -45,24 +46,24 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
         
     #Общий вектор отталкивания
     #for dist in test_dist:
-    print(test_dist)
+   # print(test_dist)
     if len(Xrf)>0:
         RF = [sum(Xrf)/len(Xrf), sum(Yrf)/len(Yrf)]
     else:
         RF=[0,0]
-    print(RF)
+    #print(RF)
     
     #Вектор притяжения
     Xra = (xg-xr)/dg
     Yra = (yg-yr)/dg
     RA = [Xra,Yra]
-    print(RA)
+    #print(RA)
     #Вектор движения
     Xrf = RF[0]
     Yrf = RF[1]
     RV_x = Xra*Ka-Xrf*Kr
     RV_y = Yra*Ka-Yrf*Kr
-    print(RV_x, RV_y)
+    #print(RV_x, RV_y)
     LinearVelocity = Vu*math.sqrt(RV_x**2+RV_y**2)
     #AngularVelocity = Vu*2*math.atan2(RV_y, RV_x)/0.1875/math.pi
     AngularVelocity = 3*math.atan2(RV_y, RV_x)
@@ -71,9 +72,9 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
 class Neato(object):
     def __init__(self, port):
         self.api = xv21(port)
-        self.last_encoders = []
+        self.last_encoders = [0,0]
         self.encoders_current = []
-        self.scan
+        self.scan = []
         self.x = 0
         self.y = 0
         self.th = 0
@@ -111,13 +112,15 @@ class Neato(object):
     def drive(self, lvel, avel):
         vl = (2*lvel - avel*(BASE_WIDTH/1000))/2
         vr = (2*lvel - avel*(BASE_WIDTH/1000))/2
-        self.api.setMotors(100,100,100)
+        ldist = vl/self.dt
+        rdist = vr/self.dt
+        self.api.setMotors(ldist*1000,rdist*1000,lvel*1000)
 
     def stop(self):
         self.api.stop()
         
 
-if __nama__ == '__main__':
+if __name__ == '__main__':
     robot = Neato('/dev/ttyACM1')
     Vu = 0.2
     xg,yg=30,0
