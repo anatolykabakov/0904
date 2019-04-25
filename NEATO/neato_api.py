@@ -4,22 +4,32 @@ import time
 class xv21(object):
     def __init__(self,port):
         self.connect = serial.Serial(port, 115200)
-        self.connect.write('TestMode on\n'.encode())
-        clear_buff = self.read()
+        self.TestMode('on')
+        self.Lidar('on')
+ 
+    def TestMode(self,flag):
+        message = 'TestMode '+ flag + '\n'
+        self.connect.write(message.encode())
+        data = self.read()
+
+    def Lidar(self,flag):
+        message = 'SetLDSRotation ' + flag + '\n'
+        self.connect.write(message.encode())
+        data = self.read()
      
     def getMotors(self):
         self.connect.write('GetMotors\n'.encode())
-        
+        wheel = {}          
         data = self.read()
         data = data.decode().split('\r\n')
-        for l in line[2:-1]:
+        for l in data[2:-1]:
             r = l.split(',')
             name = r[0]
             value = r[1]
             wheel[name] = int(value)
 
-        right = wheel['RightWheel_Speed']/1000
-        left  = wheel['LeftWheel_Speed']/1000
+        right = wheel['RightWheel_PositionInMM']/1000
+        left  = wheel['LeftWheel_PositionInMM']/1000
         
         return right, left
     
@@ -27,9 +37,6 @@ class xv21(object):
         scanvals=[]
         self.connect.write('GetLDSScan\n'.encode())
         scan = self.read().decode().split('\r\n')
-<<<<<<< HEAD
-        return scan
-=======
         for line in scan[2:-2]:
             try:
                 vals = line.split(',')
@@ -43,6 +50,11 @@ class xv21(object):
             except:
                 None
         return scanvals
+    def stop(self):
+        self.setMotors(0,0,0)
+        self.Lidar('off')
+        self.TestMode('off')
+        
     
     def setMotors(self, l, r, s):
         """ Set motors, distance left & right + speed """
@@ -56,9 +68,9 @@ class xv21(object):
         else:
             self.stop_state = False
         command = "setmotor "+str(int(l))+" "+str(int(r))+" "+str(int(s))+"\n"
-        self.port.write(command.encode())
+        self.connect.write(command.encode())
+        data = self.read()
         
->>>>>>> 87daa80fe260cd293bcdd0dafdbcd72b10286e5c
     def read(self):
         line = b''
         while True:
@@ -73,22 +85,13 @@ class xv21(object):
 
         
 if __name__ == '__main__':
-    #neato = serial.Serial('/dev/ttyACM1',115200,timeout=0)
-    #neato.write('TestMode on\n'.encode())
-    #neato.write('GetMotors\n'.encode())
-    #time.sleep(1)
-    #data = neato.read(neato.inWaiting())
-    #time_last = time.time()
-    #data = read(neato)
-    #data = read(neato)
-    #now = time.time() - time_last
-    #neato.write('GetLDSScan\n'.encode())
-    #data=read(neato)
-    #data=read(neato)
-    #print(now)
     robot = xv21('/dev/ttyACM1')
-    encoders = robot.getMotors()
-    scan =    robot.getScan()
-    print(encoders)
-    print(scan)
-    
+    while True:
+        try:
+            encoders = robot.getMotors()
+            scan =    robot.getScan()
+            robot.setMotors(100,100,100)
+            print(encoders)
+            print(scan)
+        except KeyboardInterrupt:
+            robot.stop()
