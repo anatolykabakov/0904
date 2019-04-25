@@ -50,6 +50,7 @@ class xv21(object):
             except:
                 None
         return scanvals
+    
     def stop(self):
         self.setMotors(0,0,0)
         self.Lidar('off')
@@ -79,9 +80,6 @@ class xv21(object):
             if data==b'\x1a':
                 break
         return line
-
-
-
 
         
 if __name__ == '__main__':

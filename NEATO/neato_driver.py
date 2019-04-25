@@ -1,7 +1,7 @@
 import math
 from neato_api import xv21
 BASE_WIDTH = 248    # millimeters
-MAX_SPEED = 300     # millimeters/second
+MAX_SPEED = 300     # millimeters/second0000
 
 class Neato(object):
     def __init__(self, port):
