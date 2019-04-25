@@ -53,7 +53,7 @@ class Neato(object):
         
 
 if __nama__ == '__main__':
-    robot = Neato('/dev/ttyACM1')
+    robot = Neato('/dev/ttyACM0')
     while True:
         try:
             robot.sense()

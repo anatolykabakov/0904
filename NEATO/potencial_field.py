@@ -110,14 +110,15 @@ class Neato(object):
         self.avel = dth/self.dt
 
     def drive(self, lvel, avel):
-        vl = (2*lvel - avel*(BASE_WIDTH/1000))/2
-        vr = (2*lvel + avel*(BASE_WIDTH/1000))/2
-        rdist = vl*self.dt
-        ldist = vr*self.dt
-        linear_vel = (ldist+rdist)/2
-        #print(ldist*1000,rdist*1000)
-        self.api.setMotors(ldist*1000,rdist*1000,lvel*1000)
-        #self.api.setMotors(100,100,100)
+
+        x = lvel * 1000
+        th = avel * (BASE_WIDTH/2) 
+        k = max(abs(x-th),abs(x+th))
+        # sending commands higher than max speed will fail
+        if k > MAX_SPEED:
+            x = x*MAX_SPEED/k; th = th*MAX_SPEED/k
+        cmd_vel = [ int(x-th) , int(x+th) ]
+        self.api.setMotors(cmd_vel[0], cmd_vel[1], max(abs(cmd_vel[0]),abs(cmd_vel[1])))
 
     def stop(self):
         self.api.stop()
