@@ -1,5 +1,5 @@
 from remote_api import Serial
-from rplidar import RPLidar as Lidar
+from rplidar import RPLidar
 import math
 import time
 from utils import normalize_angle, scan2distVec
@@ -10,12 +10,12 @@ class Robot:
         # Connect to Arduino unit
         self.arduino   = Serial(ARDUINO_HCR, 57600)
         # Connect to Lidar unit
-        self.lidar = Lidar(LIDAR_DEVICE)
+        self.lidar = RPLidar(LIDAR_DEVICE)
         # Create an iterator to collect scan data from the RPLidar
+        time.sleep(1)
         self.iterator = self.lidar.iter_scans()
         # First scan is crap, so ignore it
-        next(self.iterator)
-        self.lidar = None
+        #next(self.iterator)
         self.WHEELS_DIST = wheel_dist
         self.WHEELS_RAD  = wheel_radius
         self.x = 0
@@ -49,13 +49,6 @@ class Robot:
         self.x += self.linear_velocity*math.cos(self.yaw) * self.dt# // в метрах
         self.y += self.linear_velocity*math.sin(self.yaw) * self.dt#
 
-    def init_lidar(self):
-        self.lidar = Lidar(LIDAR_DEVICE)
-        # Create an iterator to collect scan data from the RPLidar
-        self.iterator = lidar.iter_scans()
-        # First scan is crap, so ignore it
-        next(self.iterator)
-
     def stop(self):
         # Shut down the lidar connection
         print('Stoping.')
@@ -63,6 +56,7 @@ class Robot:
         self.arduino.setSerialData(0,0)
         self.arduino.close_connect()
         self.lidar.stop()
+        self.lidar.stop_motor()
         self.lidar.disconnect()
 
     def vRToDrive(self, vLinear, vAngular):
