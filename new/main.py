@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import time
 import math
 from robot import Robot
@@ -96,10 +98,11 @@ if __name__ == '__main__':
         try:
             robot.sense()
             robot.update_state()
-            #LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, robot.scan)
-            #robot.drive(LinearVelocity, AngularVelocity)
-            robot.drive(0.2, 0.5)
-            robot.write_log()
+            LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, robot.scan)
+            robot.drive(LinearVelocity, AngularVelocity)
+            #robot.drive(0.2, 0.5)
+            #robot.write_log()
             #print('vr: {0}, vl: {1}'.format(robot.vr, robot.vl))
         except KeyboardInterrupt:
             robot.stop()
+            stop = True

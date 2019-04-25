@@ -46,7 +46,7 @@ def potencial_field(xr, yr, xg, yg, Vu, scan):
         
     #Общий вектор отталкивания
     #for dist in test_dist:
-   # print(test_dist)
+    print(test_dist)
     if len(Xrf)>0:
         RF = [sum(Xrf)/len(Xrf), sum(Yrf)/len(Yrf)]
     else:
@@ -94,8 +94,8 @@ class Neato(object):
         self.prev_time = self.current_time
         left=self.encoders_current[1]
         right=self.encoders_current[0]
-        d_left = (left - self.last_encoders[0])/1000.0
-        d_right = (right - self.last_encoders[1])/1000.0
+        d_left = (left - self.last_encoders[1])
+        d_right = (right - self.last_encoders[0])
         self.last_encoders = [left, right]
         
         dx = (d_left+d_right)/2
@@ -111,25 +111,31 @@ class Neato(object):
 
     def drive(self, lvel, avel):
         vl = (2*lvel - avel*(BASE_WIDTH/1000))/2
-        vr = (2*lvel - avel*(BASE_WIDTH/1000))/2
-        ldist = vl/self.dt
-        rdist = vr/self.dt
+        vr = (2*lvel + avel*(BASE_WIDTH/1000))/2
+        rdist = vl*self.dt
+        ldist = vr*self.dt
+        linear_vel = (ldist+rdist)/2
+        #print(ldist*1000,rdist*1000)
         self.api.setMotors(ldist*1000,rdist*1000,lvel*1000)
+        #self.api.setMotors(100,100,100)
 
     def stop(self):
         self.api.stop()
         
 
 if __name__ == '__main__':
-    robot = Neato('/dev/ttyACM1')
+    robot = Neato('/dev/ttyACM0')
     Vu = 0.2
     xg,yg=30,0
     while True:
         try:
             robot.sense()
             robot.update_state()
+            #print(robot.x, robot.y)
             LinearVelocity, AngularVelocity,stop = potencial_field(robot.x, robot.y, xg, yg, Vu, robot.scan)
             robot.drive(LinearVelocity, AngularVelocity)
 
         except KeyboardInterrupt:
             robot.stop()
+ 
+        
