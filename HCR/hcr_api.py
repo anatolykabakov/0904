@@ -16,11 +16,35 @@ start_connect = 's'
 
 class hcr():
     def __init__(self, ARDUINO_PORT='/dev/ttyACM0', LIDAR_PORT='/dev/ttyUSB0'):
-        self.arduino = serial.Serial(ARDUINO_PORT, ARDUINO_SPEED)
+        self.arduino = self.openconnectl(ARDUINO_PORT, ARDUINO_SPEED)
         # Connect to Lidar unit
         self.lidar = RPLidar(LIDAR_DEVICE)
         # Create an iterator to collect scan data from the RPLidar
         self.iterator = self.lidar.iter_scans()
+
+    def check_connect(self):
+        c = self.arduino.read(1).decode()
+        if c != 'c':
+            print("false read")
+
+    def openconnect(self, port, speed):
+        connect = serial.Serial(port, speed)
+        time.sleep(1)
+        while not connect.is_open:
+            self.openconnect(port, speed)
+        is_connected = False
+        while not is_connected:
+            print("Waiting for arduino...")
+            self.connect.write(start_connect.encode())
+            self.connect_flag = connect.read(1).decode()
+            self.check_connect(connect)
+            if not connect_flag:
+                time.sleep(0.1)
+                continue
+            if connect_flag == 'r':
+                is_connected = True
+                print('Connected!')
+        return connect
         
     def send(self, lvel, avel):
         send_data = set_command + str(lvel) + ' ' + str(avel) + "\n"
@@ -36,7 +60,9 @@ class hcr():
         self.lidar_stop()
 
     def getMotors(self):
-        data = self.recieve()
+        connect.write(print_command.encode())
+        recieve_data = self.arduino.read(12).decode() # чтение строки из 24 символов в строку
+        self.check_connect()
         data = data.split(';')
         right = float(data[0])
         left = float(data[1])
@@ -44,6 +70,7 @@ class hcr():
  
     def setMotors(self, rightVelocity, leftVelocity):
         self.send(rightVelocity, leftVelocity)
+        self.check_connect()
 
     def getScan(self):
         #get laser dara
@@ -65,7 +92,7 @@ if __name__ == '__main__':
     robot = hcr(ARDUINO_PORT, LIDAR_PORT)
     while True:
         try:
-            encoders = robot.getMotors()
+            right, left = robot.getMotors()
             scan = robot.getScan()
             robot.setMotors(0.2,0.2)
             print(encoders)
