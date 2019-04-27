@@ -6,9 +6,9 @@ MAX_SPEED = 300     # millimeters/second0000
 class Neato(object):
     def __init__(self, port):
         self.api = xv21(port)
-        self.last_encoders = []
+        self.last_encoders = [0,0]
         self.encoders_current = []
-        self.scan
+        self.scan = []
         self.x = 0
         self.y = 0
         self.th = 0
@@ -28,8 +28,8 @@ class Neato(object):
         self.prev_time = self.current_time
         left=self.encoders_current[1]
         right=self.encoders_current[0]
-        d_left = (left - self.last_encoders[0])/1000.0
-        d_right = (right - self.last_encoders[1])/1000.0
+        d_left = (left - self.last_encoders[1])
+        d_right = (right - self.last_encoders[0])
         self.last_encoders = [left, right]
         
         dx = (d_left+d_right)/2
@@ -44,9 +44,15 @@ class Neato(object):
         self.avel = dth/self.dt
 
     def drive(self, lvel, avel):
-        vl = (2*lvel - avel*(BASE_WIDTH/1000))/2
-        vr = (2*lvel - avel*(BASE_WIDTH/1000))/2
-        self.api.setMotors(100,100,100)
+
+        x = lvel * 1000
+        th = avel * (BASE_WIDTH/2) 
+        k = max(abs(x-th),abs(x+th))
+        # sending commands higher than max speed will fail
+        if k > MAX_SPEED:
+            x = x*MAX_SPEED/k; th = th*MAX_SPEED/k
+        cmd_vel = [ int(x-th) , int(x+th) ]
+        self.api.setMotors(cmd_vel[0], cmd_vel[1], max(abs(cmd_vel[0]),abs(cmd_vel[1])))
 
     def stop(self):
         self.api.stop()
