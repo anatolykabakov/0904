@@ -15,7 +15,7 @@ print_command = 'd'
 start_connect = 's'
 
 class hcr():
-    def __init__(self):
+    def __init__(self, ARDUINO_PORT='/dev/ttyACM0', LIDAR_PORT='/dev/ttyUSB0'):
         self.connect = self.openconnect(ARDUINO_PORT, ARDUINO_SPEED)
         # Connect to Lidar unit
         self.lidar = RPLidar(LIDAR_DEVICE)
@@ -59,13 +59,6 @@ class hcr():
 
     def closeconnect(self):
         self.connect.close()
-        
-    def process_data(data):
-        # разбиваем строку на отдельные значения 
-        data = data.split(';')
-        linearVelocityRight = float(data[0])
-        linearVelocityLeft = float(data[1])
-        return linearVelocityRight, linearVelocityLeft
 
     def lidar_stop(self):
         self.lidar.stop()
@@ -73,7 +66,10 @@ class hcr():
 
     def getMotors(self):
         data = self.recieve()
-        return self.process_data(data)
+        data = data.split(';')
+        right = float(data[0])
+        left = float(data[1])
+        return right, left
  
     def setSerialData(self, rightVelocity, leftVelocity):
         self.send(rightVelocity, leftVelocity)
@@ -84,3 +80,19 @@ class hcr():
         scan = [[item[1], item[2]] for item in next(self.iterator)]
         return scan
 
+if __name__ == '__main__':
+    #Arduino serial port
+    ARDUINO_PORT = '/dev/ttyACM0'
+
+    #RPLidar serial port
+    LIDAR_PORT = '/dev/ttyUSB0'
+    robot = hcr(ARDUINO_PORT, LIDAR_PORT)
+    while True:
+        try:
+            encoders = robot.getMotors()
+            scan =    robot.getScan()
+            robot.setMotors(100,100,100)
+            print(encoders)
+            print(scan)
+        except KeyboardInterrupt:
+            robot.stop()
