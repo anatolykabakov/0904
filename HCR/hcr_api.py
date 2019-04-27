@@ -16,7 +16,7 @@ start_connect = 's'
 
 class hcr():
     def __init__(self, ARDUINO_PORT='/dev/ttyACM0', LIDAR_PORT='/dev/ttyUSB0'):
-        self.arduino = self.openconnect(ARDUINO_PORT, ARDUINO_SPEED)
+        self.connect = self.openconnect(ARDUINO_PORT, ARDUINO_SPEED)
         # Connect to Lidar unit
         self.lidar = RPLidar(LIDAR_PORT)
         # Create an iterator to collect scan data from the RPLidar
@@ -48,8 +48,8 @@ class hcr():
         
     def send(self, lvel, avel):
         send_data = set_command + str(lvel) + ' ' + str(avel) + "\n"
-        self.arduino.write(send_data.encode())
-        self.check_connect(self.arduino)
+        self.connect.write(send_data.encode())
+        self.check_connect(self.connect)
 
     def lidar_stop(self):
         self.lidar.stop()
@@ -57,16 +57,16 @@ class hcr():
 
     def arduino_stop(self):
         self.setMotors(0,0)
-        self.arduino.close()
+        self.connect.close()
 
     def stop(self):
-        self.arduino_stop()
         self.lidar_stop()
+        self.arduino_stop()
 
     def getMotors(self):
-        self.arduino.write(print_command.encode())
-        data = self.arduino.read(12).decode() # чтение строки из 24 символов в строку
-        self.check_connect(self.arduino)
+        self.connect.write(print_command.encode())
+        data = self.connect.read(12).decode() # чтение строки из 24 символов в строку
+        self.check_connect(self.connect)
         data = data.split(';')
         right = float(data[0])
         left = float(data[1])
@@ -82,14 +82,7 @@ class hcr():
         scan = [[item[1], item[2]] for item in next(self.iterator)]
         return scan
     
-    def recieve(self):
-        line = b''
-        while True:
-            data = self.arduino.read()
-            line+=data
-            if data==b'c':
-                break
-        return line
+
 
 if __name__ == '__main__':
 
@@ -99,7 +92,7 @@ if __name__ == '__main__':
             right, left = robot.getMotors()
             scan = robot.getScan()
             robot.setMotors(0.2,0.2)
-            print(encoders)
+            print(right, left)
             print(scan)
         except KeyboardInterrupt:
             robot.stop()
