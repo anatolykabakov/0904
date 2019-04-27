@@ -4,7 +4,7 @@ from rplidar import RPLidar
 
 #Arduino serial port
 ARDUINO_PORT = '/dev/ttyACM0'
-ARDUINO_SPEED = 57600
+ARDUINO_SPEED = 115200
 
 #RPLidar serial port
 LIDAR_PORT = '/dev/ttyUSB0'
@@ -47,12 +47,13 @@ class hcr():
         return connect
         
     def send(self, lvel, avel):
-        send_data = set_command + str(lvel) + ' ' + str(avel) + "\n"
+        send_data = set_command + str(round(lvel,2)) + ' ' + str(round(avel,2)) + "\n"
         self.connect.write(send_data.encode())
         self.check_connect(self.connect)
 
     def lidar_stop(self):
         self.lidar.stop()
+        self.lidar.stop_motor()
         self.lidar.disconnect()
 
     def arduino_stop(self):
@@ -65,7 +66,8 @@ class hcr():
 
     def getMotors(self):
         self.connect.write(print_command.encode())
-        data = self.connect.read(12).decode() # чтение строки из 24 символов в строку
+        data = self.connect.read(12).decode()
+        #print(data) 
         self.check_connect(self.connect)
         data = data.split(';')
         right = float(data[0])
@@ -74,7 +76,8 @@ class hcr():
  
     def setMotors(self, rightVelocity, leftVelocity):
         self.send(rightVelocity, leftVelocity)
-        self.check_connect(self.arduino)
+        #print('2')
+        #self.check_connect(self.connect)
 
     def getScan(self):
         #get laser dara
@@ -90,9 +93,10 @@ if __name__ == '__main__':
     while True:
         try:
             right, left = robot.getMotors()
+            print(right,left)
             scan = robot.getScan()
-            robot.setMotors(0.2,0.2)
-            print(right, left)
             print(scan)
+            robot.setMotors(0.2,0.2)
+            print('1')
         except KeyboardInterrupt:
             robot.stop()
